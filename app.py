@@ -4,7 +4,7 @@ import numpy as np
 from joblib import load
 
 # Load model
-model, encoder = load("trained_models/best_model.joblib")
+model, encoder = load("ML_models/best_model.joblib")
 
 st.title("🩺 AI Disease Predictor")
 
