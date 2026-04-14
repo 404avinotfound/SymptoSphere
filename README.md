@@ -46,7 +46,7 @@ project/
 ## Installation
 
 ### 1. Clone the repository
-git clone https://github.com/
+git clone https://github.com/404avinotfound/SymptoSphere.git
 
 cd SymptoSphere
 ---
