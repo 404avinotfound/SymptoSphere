@@ -69,7 +69,7 @@ Open [http://localhost:3000](http://localhost:3000)
 ### Option A — Vercel Dashboard (recommended)
 
 1. Push this repo to GitHub
-2. Go to [https://vercel.com/new](https://vercel.com/new)
+2. Go to ([https://vercel.com/new](https://symptosphere-three.vercel.app/))]
 3. Import your `SymptoSphere` repository
 4. Click **Deploy** — no environment variables needed
 
