@@ -2,7 +2,9 @@
 
 An intelligent disease prediction web app  rebuilt from Streamlit to a production-ready Next.js app deployable on Vercel. Fully rule-based, no API keys required.
 
-##Visit 
+---
+
+## Visit 
 https://symptosphere-three.vercel.app/
 
 ---
