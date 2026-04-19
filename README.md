@@ -1,173 +1,194 @@
-# SymptoSphere 
-Intelligent Disease Prediction System using Machine Learning
+# SymptoSphere 🌿
 
-Go to https://symptosphere-404avinotfound.streamlit.app/
----
-
-## Overview
-
-SymptoSphere is a machine learning-based web application that predicts diseases based on user-selected symptoms. It uses multiple advanced models and automatically selects the best-performing model to provide accurate predictions.
-
-The system returns the top three probable diseases along with confidence scores through an interactive user interface built with Streamlit.
-
----
+An AI-powered symptom checker and disease prediction web app — rebuilt from Streamlit to a production-ready Next.js app deployable on Vercel.
 
 ## Features
 
-- Symptom-based disease prediction  
-- Multi-model system (XGBoost, SVM, LightGBM)  
-- Automatic best model selection  
-- Model comparison visualization  
-- Data preprocessing and label encoding  
-- Interactive Streamlit UI with checkbox input  
-- Top-3 predictions with probability scores  
-- Modular and scalable project structure  
+- **Conversational chat UI** — describe symptoms in natural language
+- **AI follow-up questions** — powered by Claude (Anthropic API)
+- **Smart symptom chips** — relevant symptoms narrowed down from your description
+- **Add more symptoms** — open-ended ability to expand your symptom list
+- **Top-3 disease prediction** — rule-based ML scoring against a disease database
+- **Remedy suggestions** — actionable home care tips per predicted disease
+- **No external ML runtime** — prediction runs fully in-process (no Python, no joblib)
+- **Vercel-ready** — Next.js 15 App Router, zero config deployment
 
 ---
 
 ## Project Structure
-project/
-│
-├── app.py # Streamlit UI
-├── main.py # Model training and comparison
-├── ML_models/ # Saved model
-│ └── best_model.joblib
-├── dataset/ # Training and test data
-├── utils/
-│ ├── preprocessing.py  # Data cleaning and encoding
-│ └── prediction.py # Prediction logic
-├── assets/ # Graphs and images
-│ ├── feature_importance.png
-│ └── model_comparison.png
-├── requirements.txt #Dependencies
-└── README.md
+
+```
+symptosphere/
+├── app/
+│   ├── layout.tsx          # Root layout + fonts + metadata
+│   ├── page.tsx            # Home page
+│   ├── globals.css         # Tailwind + custom animations
+│   └── api/
+│       └── chat/
+│           └── route.ts    # Anthropic API proxy (server-side)
+├── components/
+│   ├── ChatInterface.tsx   # Main chat shell + message state
+│   ├── SymptomChips.tsx    # Selectable symptom pill buttons
+│   └── DiseaseResults.tsx  # Top-3 disease cards with remedies
+├── lib/
+│   └── diseaseData.ts      # Disease DB, symptom map, prediction logic
+├── .env.example
+├── next.config.js
+├── tailwind.config.js
+├── tsconfig.json
+└── package.json
+```
 
 ---
 
-## Installation
+## Local Development
 
-### 1. Clone the repository
+### 1. Clone and install
+
+```bash
 git clone https://github.com/404avinotfound/SymptoSphere.git
-
 cd SymptoSphere
+npm install
+```
+
+### 2. Set up environment variables
+
+```bash
+cp .env.example .env.local
+```
+
+Open `.env.local` and add your Anthropic API key:
+
+```
+ANTHROPIC_API_KEY=sk-ant-...
+```
+
+Get your key at: https://console.anthropic.com
+
+### 3. Run the dev server
+
+```bash
+npm run dev
+```
+
+Open http://localhost:3000
+
 ---
 
-### 2. Install dependencies
-pip install -r requirements.txt
+## Deploy to Vercel
 
+### Option A — Vercel Dashboard (recommended)
 
----
+1. Push this repo to GitHub
+2. Go to https://vercel.com/new
+3. Import your `SymptoSphere` repository
+4. Under **Environment Variables**, add:
+   - Key: `ANTHROPIC_API_KEY`
+   - Value: your Anthropic API key
+5. Click **Deploy**
 
-## Train the Model
+Done. Your app will be live at `https://your-project.vercel.app`.
 
-Run the following command:
+### Option B — Vercel CLI
 
-
-python train.py
-
-
-This will:
-- Train multiple models  
-- Select the best model  
-- Save it in `ML_models/best_model.joblib`  
-- Generate a model comparison graph  
-
----
-
-## Run the Application
-
-
-python -m streamlit run app.py
+```bash
+npm i -g vercel
+vercel
+# Follow prompts, then:
+vercel env add ANTHROPIC_API_KEY
+vercel --prod
+```
 
 ---
 
 ## How It Works
 
-1. User selects symptoms through the interface  
-2. Input is converted into a feature vector  
-3. The trained model predicts probabilities  
-4. Top three diseases are displayed with confidence scores  
+### Chat Flow
+
+```
+User types symptoms
+       ↓
+Claude API (server-side route) asks 1-2 follow-up questions
+       ↓
+After context is gathered → SHOW_SYMPTOMS signal
+       ↓
+Relevant symptom chips rendered (narrowed to complaint)
+       ↓
+User selects chips + optionally describes more symptoms
+       ↓
+Predict Diseases button → local scoring algorithm
+       ↓
+Top 3 diseases shown with confidence % and remedies
+```
+
+### Prediction Algorithm
+
+The scoring is a **Jaccard-style overlap** between selected symptoms and each disease's known symptom profile:
+
+```
+score = (matching symptoms) / max(selected count, disease symptom count) × 100
+```
+
+Results are ranked and top 3 returned. No external model or API call — runs instantly in the browser/server.
+
+### Disease Database
+
+12 diseases currently modelled:
+
+| Disease | Key Symptoms |
+|---|---|
+| Dengue Fever | fever, rash, body ache |
+| Malaria | cyclical fever, chills, sweating |
+| Typhoid | abdominal pain, constipation, fever |
+| Common Cold | runny nose, sore throat, cough |
+| Influenza | high fever, body ache, fatigue |
+| COVID-19 | dry cough, shortness of breath, fatigue |
+| Gastroenteritis | nausea, vomiting, diarrhea |
+| Migraine | severe headache, light sensitivity |
+| Pneumonia | wet cough, chest pain, breathlessness |
+| Hypertension | headache, dizziness, palpitations |
+| Anemia | fatigue, weakness, breathlessness |
+| Diabetes | excessive thirst, frequent urination |
 
 ---
 
-## Models Used
+## Extending the Disease Database
 
-- XGBoost  
-- Support Vector Machine (SVM)  
-- LightGBM  
+Add new diseases in `lib/diseaseData.ts` under `DISEASE_DB`:
 
-The best model is selected automatically based on validation accuracy.
+```ts
+"Chickenpox": {
+  symptoms: ["rash","blisters","fever","itching","fatigue","loss_of_appetite"],
+  description: "A highly contagious viral infection causing itchy blisters.",
+  remedies: ["Antihistamines","Calamine lotion","Rest","Avoid scratching","Antiviral meds if severe"],
+  color: "pink",
+},
+```
 
----
-
-## Example Output
-
-
-Top Predictions:
-Dengue : 92.34%
-Malaria : 85.12%
-Typhoid : 78.45%
-
+Add new symptom keyword mappings in `SYMPTOM_MAP` to improve chip suggestions for new complaint types.
 
 ---
 
-## Deployment
+## Tech Stack
 
-To deploy using Streamlit Cloud:
-
-1. Push your code to GitHub  
-2. Go to https://symptosphere-404avinotfound.streamlit.app/
-3. Select your repository  
-4. Set the main file as:
-
-
-app.py
-
-
----
-
-## Technologies Used
-
-- Python  
-- Pandas  
-- NumPy  
-- Scikit-learn  
-- XGBoost  
-- LightGBM  
-- Streamlit  
-- Matplotlib  
-- Joblib  
-
----
-
-## Objective
-
-To develop a practical machine learning application that demonstrates disease prediction using symptom data and provides an intuitive user interface for interaction.
+| Layer | Technology |
+|---|---|
+| Framework | Next.js 15 (App Router) |
+| Language | TypeScript |
+| Styling | Tailwind CSS |
+| AI Chat | Anthropic Claude (claude-sonnet-4) |
+| Prediction | Rule-based scoring (no ML runtime) |
+| Fonts | DM Sans + DM Mono (Google Fonts) |
+| Deployment | Vercel |
 
 ---
 
 ## Disclaimer
 
-This project is intended for educational purposes only and should not be used as a substitute for professional medical advice.
+This application is intended **for educational purposes only**. It is not a substitute for professional medical advice, diagnosis, or treatment. Always consult a qualified healthcare professional.
 
 ---
 
 ## Author
 
-404avinotfound  
-B.Tech CSE Student  
-
----
-
-## Future Improvements
-
-- Symptom severity input (scaled values)  
-- Doctor recommendation system  
-- Natural language symptom input  
-- Improved UI design and responsiveness  
-
----
-
-## License
-
-This project is open-source and available for educational use.
+404avinotfound — B.Tech CSE Student
