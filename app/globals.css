@@ -1,38 +1,113 @@
+@import url('https://fonts.googleapis.com/css2?family=Syne:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap');
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 :root {
-  --teal-50: #E1F5EE; --teal-100: #9FE1CB; --teal-200: #5DCAA5;
-  --teal-400: #1D9E75; --teal-600: #0F6E56; --teal-800: #085041;
-  --amber-50: #FAEEDA; --amber-400: #BA7517; --amber-600: #854F0B;
-  --green-50: #EAF3DE; --green-400: #639922; --green-600: #3B6D11;
-  --coral-50: #FAECE7; --coral-400: #D85A30; --coral-600: #993C1D;
-  --blue-50: #E6F1FB; --blue-400: #378ADD; --blue-600: #185FA5;
-  --purple-50: #EEEDFE; --purple-400: #7F77DD; --purple-600: #534AB7;
-  --red-50: #FCEBEB; --red-400: #E24B4A; --red-600: #A32D2D;
-  --gray-50: #F1EFE8; --gray-100: #D3D1C7; --gray-200: #B4B2A9; --gray-400: #888780; --gray-600: #5F5E5A;
+  --bg-void: #080B10;
+  --bg-deep: #0D1117;
+  --bg-surface: #111827;
+  --bg-card: #141B26;
+  --bg-elevated: #1C2333;
+  --bg-hover: #1F2937;
+
+  --accent-teal: #00D9A6;
+  --accent-teal-dim: #00A87F;
+  --accent-teal-glow: rgba(0, 217, 166, 0.15);
+  --accent-blue: #4F8EF7;
+  --accent-amber: #F59E0B;
+  --accent-red: #EF4444;
+
+  --text-primary: #F0F4FF;
+  --text-secondary: #8B95A8;
+  --text-muted: #ddee80;
+  --text-accent: #00D9A6;
+
+  --border-subtle: rgba(255,255,255,0.05);
+  --border-dim: rgba(255,255,255,0.08);
+  --border-accent: rgba(0, 217, 166, 0.3);
+
+  --font-display: 'Syne', sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
 }
 
-* { box-sizing: border-box; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  background-color: var(--bg-void);
+  color: var(--text-primary);
+  font-family: var(--font-display);
+  -webkit-font-smoothing: antialiased;
+  min-height: 100vh;
+}
+
+/* Scrollbar */
+::-webkit-scrollbar { width: 4px; }
+::-webkit-scrollbar-track { background: var(--bg-deep); }
+::-webkit-scrollbar-thumb { background: var(--border-dim); border-radius: 4px; }
+::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+
+/* Typing animation */
+@keyframes pulse-dot {
+  0%, 60%, 100% { transform: translateY(0); opacity: 0.4; }
+  30% { transform: translateY(-5px); opacity: 1; }
+}
 
 .typing-dot {
-  animation: bounce 1.2s infinite;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--accent-teal);
+  animation: pulse-dot 1.4s infinite;
 }
-.typing-dot:nth-child(2) { animation-delay: 0.2s; }
-.typing-dot:nth-child(3) { animation-delay: 0.4s; }
+.typing-dot:nth-child(2) { animation-delay: 0.15s; }
+.typing-dot:nth-child(3) { animation-delay: 0.3s; }
 
-@keyframes bounce {
-  0%, 60%, 100% { transform: translateY(0); }
-  30% { transform: translateY(-5px); }
+/* Status dot */
+@keyframes status-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(0, 217, 166, 0.4); }
+  50% { box-shadow: 0 0 0 6px rgba(0, 217, 166, 0); }
 }
 
 .status-dot {
-  animation: pulse 2s infinite;
-}
-@keyframes pulse {
-  0%, 100% { opacity: 1; }
-  50% { opacity: 0.4; }
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: var(--accent-teal);
+  animation: status-pulse 2s infinite;
 }
 
-.sym-chip.selected::before { content: '✓ '; }
+/* Message entrance */
+@keyframes msg-in {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.msg-enter { animation: msg-in 0.3s ease forwards; }
+
+/* Grid bg pattern */
+.grid-bg {
+  background-image:
+    linear-gradient(var(--border-subtle) 1px, transparent 1px),
+    linear-gradient(90deg, var(--border-subtle) 1px, transparent 1px);
+  background-size: 40px 40px;
+}
+
+/* Glow effect */
+.teal-glow {
+  box-shadow: 0 0 20px rgba(0, 217, 166, 0.1), inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+/* Chip selected state */
+.sym-chip.selected {
+  background: var(--accent-teal-glow);
+  border-color: var(--accent-teal);
+  color: var(--accent-teal);
+}
+
+/* Scan line for futuristic feel */
+@keyframes scan {
+  from { background-position: 0 -100%; }
+  to { background-position: 0 100vh; }
+}

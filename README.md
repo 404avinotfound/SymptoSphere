@@ -5,7 +5,7 @@ An intelligent disease prediction web app  rebuilt from Streamlit to a productio
 ---
 
 ## Visit 
-https://symptosphere-three.vercel.app/
+
 
 ---
 
@@ -74,7 +74,7 @@ Open [http://localhost:3000](http://localhost:3000)
 ### Option A — Vercel Dashboard (recommended)
 
 1. Push this repo to GitHub
-2. Go to ([https://vercel.com/new](https://symptosphere-three.vercel.app/))]
+2. Go to 
 3. Import your `SymptoSphere` repository
 4. Click **Deploy** — no environment variables needed
 
