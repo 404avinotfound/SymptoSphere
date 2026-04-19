@@ -1,11 +1,21 @@
 # SymptoSphere 🌿
 
-An intelligent disease prediction web app  rebuilt from Streamlit to a production-ready Next.js app deployable on Vercel. Fully rule-based, no API keys required.
+An intelligent disease prediction web app rebuilt from Streamlit to a production-ready Next.js app deployable on Vercel. Fully rule-based, no API keys required.
 
 ---
 
-## Visit 
+## Visit
+https://symptosphere-three.vercel.app/
 
+---
+
+## What's New in V2.0.1 — UI Update
+
+- **Custom background image** — full-screen background image on the app shell via `public/bg.png`
+- **Custom logo image** — the header logo is now a real image (`public/logo.jpg`) instead of a placeholder icon
+- **Avatar image** — profile avatar displayed in the chat header via `public/avatar.png`
+- **Decorative chat image** — a ghost-overlaid illustration (`public/chat-decor.png`) shown in the empty chat area on first load; auto-hides once conversation begins
+- **Most Likely Diagnosis panel** — after prediction, a teal-highlighted card appears below the Top 3 results explicitly stating *"You most likely have [Disease]"* with its description and recommended remedies
 
 ---
 
@@ -16,7 +26,9 @@ An intelligent disease prediction web app  rebuilt from Streamlit to a productio
 - **Relevant symptom chips** — symptoms narrowed down to your specific condition
 - **Add more symptoms** — open-ended ability to expand your symptom list at any time
 - **Top-3 disease prediction** — scoring algorithm matches symptoms against 60+ diseases
+- **Most Likely Diagnosis** — highlighted summary card showing the highest-probability condition with remedies
 - **Remedy suggestions** — actionable home care tips per predicted disease
+- **Custom branding** — logo, avatar, background, and decorative illustration all configurable via `public/`
 - **Zero API usage** — runs 100% locally, no external services, no API keys needed
 - **No ML runtime** — prediction runs fully in-process with pure TypeScript logic
 - **Vercel-ready** — Next.js 15 App Router, zero config deployment
@@ -28,21 +40,33 @@ An intelligent disease prediction web app  rebuilt from Streamlit to a productio
 ```
 SymptoSphere/
 ├── app/
-│   ├── layout.tsx          # Root layout + fonts + metadata
-│   ├── page.tsx            # Home page
-│   └── globals.css         # Tailwind + custom animations
+│   ├── globals.css             # Tailwind + custom animations
+│   ├── layout.tsx              # Root layout + fonts + metadata
+│   └── page.tsx                # Home page
 ├── components/
-│   ├── ChatInterface.tsx   # Main chat shell + message state
-│   ├── SymptomChips.tsx    # Selectable symptom pill buttons
-│   └── DiseaseResults.tsx  # Top-3 disease cards with remedies
+│   ├── ChatInterface.tsx       # Main chat shell + message state + background image
+│   ├── DiseaseResults.tsx      # Top-3 disease cards + Most Likely Diagnosis panel
+│   ├── ProfileHeader.tsx       # Header with avatar and banner
+│   └── SymptomChips.tsx        # Selectable symptom pill buttons
 ├── lib/
-│   ├── diseaseData.ts      # Disease DB (60+ diseases), symptom map, prediction logic
-│   └── chatEngine.ts       # Rule-based chat engine with 40+ keyword rule groups
+│   ├── chatEngine.ts           # Rule-based chat engine with 40+ keyword rule groups
+│   └── diseaseData.ts          # Disease DB (60+ diseases), symptom map, prediction logic
+├── public/
+│   ├── avatar.png              # Avatar image shown in the chat header
+│   ├── bg.png                  # Full-screen background image for the app shell
+│   ├── chat-decor.png          # Decorative illustration shown in empty chat state
+│   └── logo.jpg                # Logo image in the top-left header
+├── .env.example
+├── .gitignore
+├── global.d.ts
+├── next-env.d.ts
 ├── next.config.js
-├── tailwind.config.js
-├── tsconfig.json
+├── package-lock.json
+├── package.json
 ├── postcss.config.js
-└── package.json
+├── README.md
+├── tailwind.config.js
+└── tsconfig.json
 ```
 
 ---
@@ -57,7 +81,20 @@ cd SymptoSphere
 npm install
 ```
 
-### 2. Run the dev server
+### 2. Add your images
+
+Place the following files in the `public/` folder before running:
+
+| File | Purpose |
+|---|---|
+| `public/bg.png` | Full-screen background image behind the chat card |
+| `public/logo.jpg` | Logo shown in the top-left header (38×38px recommended) |
+| `public/avatar.png` | Avatar image shown in the chat UI header |
+| `public/chat-decor.png` | Decorative image in the empty chat area (auto-hides after first message) |
+
+> These images are optional — the app works without them, but placeholders will show.
+
+### 3. Run the dev server
 
 ```bash
 npm run dev
@@ -74,7 +111,7 @@ Open [http://localhost:3000](http://localhost:3000)
 ### Option A — Vercel Dashboard (recommended)
 
 1. Push this repo to GitHub
-2. Go to 
+2. Go to [https://vercel.com/new](https://vercel.com/new)
 3. Import your `SymptoSphere` repository
 4. Click **Deploy** — no environment variables needed
 
@@ -107,6 +144,8 @@ User selects chips + can add more symptoms via chat
 "Predict diseases" → local scoring algorithm runs
                ↓
 Top 3 diseases shown with confidence % and remedies
+               ↓
+Most Likely Diagnosis panel highlights the #1 match
 ```
 
 ### Prediction Algorithm
@@ -119,7 +158,15 @@ coverageRatio = matching symptoms / user's selected symptoms
 score         = average(matchRatio, coverageRatio) × 100
 ```
 
-Results with at least 1 matching symptom are ranked and the top 3 returned. Runs instantly with no network call.
+Results with at least 1 matching symptom are ranked and the top 3 returned. The highest-scoring disease is then surfaced in the **Most Likely Diagnosis** panel below the results. Runs instantly with no network call.
+
+### Most Likely Diagnosis Panel
+
+After the Top 3 cards, a dedicated teal panel states:
+
+> *"You most likely have [Disease Name]."*
+
+It shows the disease description and recommended remedies in larger, prominent pills. The panel only appears when results are shown and always reflects the #1 ranked result.
 
 ### Chat Engine
 
@@ -166,7 +213,7 @@ Add new diseases in `lib/diseaseData.ts` under `DISEASE_DB`:
 },
 ```
 
-Add new keyword rules in `lib/chatEngine.ts` under `KEYWORD_RULES` to improve chat responses for new complaint types:
+Add new keyword rules in `lib/chatEngine.ts` under `KEYWORD_RULES`:
 
 ```ts
 {
@@ -178,16 +225,34 @@ Add new keyword rules in `lib/chatEngine.ts` under `KEYWORD_RULES` to improve ch
 
 ---
 
+## Customising the UI
+
+| File | What it controls | Tips |
+|---|---|---|
+| `public/bg.png` | Full-screen background | Any size; rendered `cover` + `fixed` |
+| `public/logo.jpg` | Top-left header logo | 38×38px works best |
+| `public/avatar.png` | Avatar in chat header | Square image, auto-rounded |
+| `public/chat-decor.png` | Illustration in empty chat | Adjust opacity in `ChatInterface.tsx` |
+
+To change the decorative chat image opacity, find this line in `ChatInterface.tsx`:
+
+```tsx
+opacity: 0.18,  // increase for more visibility, decrease for subtler effect
+```
+
+---
+
 ## Tech Stack
 
 | Layer | Technology |
 |---|---|
 | Framework | Next.js 15 (App Router) |
 | Language | TypeScript |
-| Styling | Tailwind CSS |
+| Styling | Tailwind CSS + inline styles |
 | Chat Logic | Rule-based engine (pure TypeScript, zero API) |
 | Prediction | Symptom overlap scoring (no ML runtime) |
-| Fonts | DM Sans + DM Mono (Google Fonts) |
+| Fonts | Syne + JetBrains Mono |
+| Images | Static assets via `public/` |
 | Deployment | Vercel |
 
 ---
