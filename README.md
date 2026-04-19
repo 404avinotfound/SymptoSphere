@@ -1,16 +1,19 @@
 # SymptoSphere 🌿
 
-An AI-powered symptom checker and disease prediction web app — rebuilt from Streamlit to a production-ready Next.js app deployable on Vercel.
+An intelligent disease prediction web app — rebuilt from Streamlit to a production-ready Next.js app deployable on Vercel. Fully rule-based, no API keys required.
+
+---
 
 ## Features
 
 - **Conversational chat UI** — describe symptoms in natural language
-- **AI follow-up questions** — powered by Claude (Anthropic API)
-- **Smart symptom chips** — relevant symptoms narrowed down from your description
-- **Add more symptoms** — open-ended ability to expand your symptom list
-- **Top-3 disease prediction** — rule-based ML scoring against a disease database
+- **Smart follow-up questions** — rule-based engine asks targeted questions based on your complaint
+- **Relevant symptom chips** — symptoms narrowed down to your specific condition
+- **Add more symptoms** — open-ended ability to expand your symptom list at any time
+- **Top-3 disease prediction** — scoring algorithm matches symptoms against 60+ diseases
 - **Remedy suggestions** — actionable home care tips per predicted disease
-- **No external ML runtime** — prediction runs fully in-process (no Python, no joblib)
+- **Zero API usage** — runs 100% locally, no external services, no API keys needed
+- **No ML runtime** — prediction runs fully in-process with pure TypeScript logic
 - **Vercel-ready** — Next.js 15 App Router, zero config deployment
 
 ---
@@ -18,24 +21,22 @@ An AI-powered symptom checker and disease prediction web app — rebuilt from St
 ## Project Structure
 
 ```
-symptosphere/
+SymptoSphere/
 ├── app/
 │   ├── layout.tsx          # Root layout + fonts + metadata
 │   ├── page.tsx            # Home page
-│   ├── globals.css         # Tailwind + custom animations
-│   └── api/
-│       └── chat/
-│           └── route.ts    # Anthropic API proxy (server-side)
+│   └── globals.css         # Tailwind + custom animations
 ├── components/
 │   ├── ChatInterface.tsx   # Main chat shell + message state
 │   ├── SymptomChips.tsx    # Selectable symptom pill buttons
 │   └── DiseaseResults.tsx  # Top-3 disease cards with remedies
 ├── lib/
-│   └── diseaseData.ts      # Disease DB, symptom map, prediction logic
-├── .env.example
+│   ├── diseaseData.ts      # Disease DB (60+ diseases), symptom map, prediction logic
+│   └── chatEngine.ts       # Rule-based chat engine with 40+ keyword rule groups
 ├── next.config.js
 ├── tailwind.config.js
 ├── tsconfig.json
+├── postcss.config.js
 └── package.json
 ```
 
@@ -51,27 +52,15 @@ cd SymptoSphere
 npm install
 ```
 
-### 2. Set up environment variables
-
-```bash
-cp .env.example .env.local
-```
-
-Open `.env.local` and add your Anthropic API key:
-
-```
-ANTHROPIC_API_KEY=sk-ant-...
-```
-
-Get your key at: https://console.anthropic.com
-
-### 3. Run the dev server
+### 2. Run the dev server
 
 ```bash
 npm run dev
 ```
 
-Open http://localhost:3000
+Open [http://localhost:3000](http://localhost:3000)
+
+> No `.env` file or API key is needed. The app works completely offline.
 
 ---
 
@@ -80,22 +69,16 @@ Open http://localhost:3000
 ### Option A — Vercel Dashboard (recommended)
 
 1. Push this repo to GitHub
-2. Go to https://vercel.com/new
+2. Go to [https://vercel.com/new](https://vercel.com/new)
 3. Import your `SymptoSphere` repository
-4. Under **Environment Variables**, add:
-   - Key: `ANTHROPIC_API_KEY`
-   - Value: your Anthropic API key
-5. Click **Deploy**
+4. Click **Deploy** — no environment variables needed
 
-Done. Your app will be live at `https://your-project.vercel.app`.
+Your app will be live at `https://your-project.vercel.app`.
 
 ### Option B — Vercel CLI
 
 ```bash
-npm i -g vercel
-vercel
-# Follow prompts, then:
-vercel env add ANTHROPIC_API_KEY
+npm install -g vercel
 vercel --prod
 ```
 
@@ -106,49 +89,62 @@ vercel --prod
 ### Chat Flow
 
 ```
-User types symptoms
-       ↓
-Claude API (server-side route) asks 1-2 follow-up questions
-       ↓
-After context is gathered → SHOW_SYMPTOMS signal
-       ↓
-Relevant symptom chips rendered (narrowed to complaint)
-       ↓
-User selects chips + optionally describes more symptoms
-       ↓
-Predict Diseases button → local scoring algorithm
-       ↓
+User describes symptoms in natural language
+               ↓
+Rule-based chat engine matches keywords
+               ↓
+Targeted follow-up question asked (no API call)
+               ↓
+Relevant symptom chips shown (narrowed to complaint)
+               ↓
+User selects chips + can add more symptoms via chat
+               ↓
+"Predict diseases" → local scoring algorithm runs
+               ↓
 Top 3 diseases shown with confidence % and remedies
 ```
 
 ### Prediction Algorithm
 
-The scoring is a **Jaccard-style overlap** between selected symptoms and each disease's known symptom profile:
+A two-ratio scoring system that combines:
 
 ```
-score = (matching symptoms) / max(selected count, disease symptom count) × 100
+matchRatio    = matching symptoms / disease's total symptoms
+coverageRatio = matching symptoms / user's selected symptoms
+score         = average(matchRatio, coverageRatio) × 100
 ```
 
-Results are ranked and top 3 returned. No external model or API call — runs instantly in the browser/server.
+Results with at least 1 matching symptom are ranked and the top 3 returned. Runs instantly with no network call.
+
+### Chat Engine
+
+The chat engine (`lib/chatEngine.ts`) uses **40+ keyword rule groups** covering every major medical category. It:
+
+1. Detects the symptom category from natural language input
+2. Asks one targeted follow-up question
+3. After 2 exchanges, displays the most relevant symptom chips
+
+No AI or API is involved — all logic is pure TypeScript.
 
 ### Disease Database
 
-12 diseases currently modelled:
+60+ diseases across 13 categories modelled in `lib/diseaseData.ts`:
 
-| Disease | Key Symptoms |
+| Category | Diseases Included |
 |---|---|
-| Dengue Fever | fever, rash, body ache |
-| Malaria | cyclical fever, chills, sweating |
-| Typhoid | abdominal pain, constipation, fever |
-| Common Cold | runny nose, sore throat, cough |
-| Influenza | high fever, body ache, fatigue |
-| COVID-19 | dry cough, shortness of breath, fatigue |
-| Gastroenteritis | nausea, vomiting, diarrhea |
-| Migraine | severe headache, light sensitivity |
-| Pneumonia | wet cough, chest pain, breathlessness |
-| Hypertension | headache, dizziness, palpitations |
-| Anemia | fatigue, weakness, breathlessness |
-| Diabetes | excessive thirst, frequent urination |
+| Skin | Chickenpox, Eczema, Psoriasis, Allergic Reaction, Ringworm, Hives, Contact Dermatitis, Jaundice, Acne, Cellulitis |
+| Respiratory | Common Cold, Influenza, COVID-19, Pneumonia, Asthma, Bronchitis, Tuberculosis, Sinusitis, Whooping Cough |
+| Vector-borne | Dengue, Malaria, Typhoid, Chikungunya, Zika, Leptospirosis, Hepatitis A/B/C, Cholera, Typhus |
+| Gastrointestinal | Gastroenteritis, IBS, Peptic Ulcer, Appendicitis, Celiac Disease, GERD, Crohn's Disease |
+| Cardiovascular | Hypertension, Heart Attack, Angina, Heart Failure, Arrhythmia |
+| Neurological | Migraine, Meningitis, Epilepsy, Stroke, Parkinson's, Alzheimer's, Multiple Sclerosis |
+| Endocrine | Diabetes Type 1 & 2, Hypothyroidism, Hyperthyroidism, Anemia, Gout, Obesity |
+| Musculoskeletal | Rheumatoid Arthritis, Osteoarthritis, Fibromyalgia, Osteoporosis, Sciatica |
+| Urinary | UTI, Kidney Stones, Chronic Kidney Disease |
+| Mental Health | Depression, Anxiety Disorder, Insomnia |
+| Eye | Conjunctivitis, Glaucoma, Cataracts |
+| Ear & Throat | Ear Infection, Tinnitus, Strep Throat, Tonsillitis |
+| Other | PCOS, Endometriosis, Lupus, HIV/AIDS, Lung/Breast/Colorectal Cancer |
 
 ---
 
@@ -158,14 +154,22 @@ Add new diseases in `lib/diseaseData.ts` under `DISEASE_DB`:
 
 ```ts
 "Chickenpox": {
-  symptoms: ["rash","blisters","fever","itching","fatigue","loss_of_appetite"],
-  description: "A highly contagious viral infection causing itchy blisters.",
+  symptoms: ["blisters","rash","itching","fever","fatigue","loss_of_appetite","redness","skin_peeling"],
+  description: "A highly contagious viral infection causing itchy blister-like rash.",
   remedies: ["Antihistamines","Calamine lotion","Rest","Avoid scratching","Antiviral meds if severe"],
   color: "pink",
 },
 ```
 
-Add new symptom keyword mappings in `SYMPTOM_MAP` to improve chip suggestions for new complaint types.
+Add new keyword rules in `lib/chatEngine.ts` under `KEYWORD_RULES` to improve chat responses for new complaint types:
+
+```ts
+{
+  keywords: ["new symptom keyword", "another phrase"],
+  followUp: "A targeted follow-up question for this symptom type?",
+  symptoms: ["symptom_one","symptom_two","symptom_three"],
+},
+```
 
 ---
 
@@ -176,8 +180,8 @@ Add new symptom keyword mappings in `SYMPTOM_MAP` to improve chip suggestions fo
 | Framework | Next.js 15 (App Router) |
 | Language | TypeScript |
 | Styling | Tailwind CSS |
-| AI Chat | Anthropic Claude (claude-sonnet-4) |
-| Prediction | Rule-based scoring (no ML runtime) |
+| Chat Logic | Rule-based engine (pure TypeScript, zero API) |
+| Prediction | Symptom overlap scoring (no ML runtime) |
 | Fonts | DM Sans + DM Mono (Google Fonts) |
 | Deployment | Vercel |
 
