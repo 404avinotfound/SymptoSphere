@@ -17,7 +17,7 @@ export default function ChatInterface() {
   const [messages, setMessages] = useState<ChatMessage[]>([
     {
       role: "assistant",
-      content: "Hello. I'm SymptoSphere your AI health companion.\n\nPlease Describe How You Feel and I'll provide you with some symptoms.\n\n For Example:  'I have a Fever',  'I have an Headache'  etc. ",
+      content: "Hello. I'm SymptoSphere your AI health companion.\n\nPlease Describe How You Feel and I'll provide you with some symptoms.\n\n For Example:  'I have a Fever',  'I have a Headache'  etc. ",
       type: "text",
     },
   ]);
