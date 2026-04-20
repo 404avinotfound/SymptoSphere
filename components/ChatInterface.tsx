@@ -31,7 +31,6 @@ export default function ChatInterface() {
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   useEffect(() => {
-    if (messages.length <= 1 && !isTyping) return;
     chatRef.current?.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
   }, [messages, isTyping]);
 
