@@ -29,9 +29,11 @@ export default function ChatInterface() {
 
   const chatRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const bottomRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    chatRef.current?.scrollTo({ top: chatRef.current.scrollHeight, behavior: "smooth" });
+    if (messages.length <= 1 && !isTyping) return;
+    bottomRef.current?.scrollIntoView({ behavior: "smooth", block: "nearest" });
   }, [messages, isTyping]);
 
   const toggleSymptom = useCallback((sym: string) => {
@@ -135,25 +137,6 @@ export default function ChatInterface() {
           backdropFilter: 'blur(20px)',
           flexShrink: 0,
         }}>
-          {/* Logo mark */}
-          {/*<div style={{
-            width: '38px',
-            height: '38px',
-            borderRadius: '10px',
-            background: 'linear-gradient(135deg, #00D9A6, #0A6E56)',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            flexShrink: 0,
-            boxShadow: '0 0 16px rgba(0,217,166,0.25)',
-          }}>
-            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
-              <circle cx="10" cy="10" r="8" stroke="rgba(255,255,255,0.4)" strokeWidth="1"/>
-              <path d="M10 6v8M6 10h8" stroke="white" strokeWidth="1.8" strokeLinecap="round"/>
-              <circle cx="10" cy="10" r="2.5" fill="white" fillOpacity="0.2"/>
-            </svg>
-          </div>*/}
-
           <img
             src="/logo.jpg"
             alt="SymptoSphere logo"
@@ -217,39 +200,21 @@ export default function ChatInterface() {
 
               {msg.role === 'assistant' && (
                 <img
-                src="/avatar.png"
-                alt="SymptoSphere logo"
-                style={{
-                  width: '33px',
-                  height: '33px',
-                  borderRadius: '5px',
-                  objectFit: 'cover',
-                  flexShrink: 0,
-                  boxShadow: '0 0 12px rgba(0,217,166,0.25)',
-                }}
+                  src="/avatar.png"
+                  alt="SymptoSphere avatar"
+                  style={{
+                    width: '33px',
+                    height: '33px',
+                    borderRadius: '5px',
+                    objectFit: 'cover',
+                    flexShrink: 0,
+                    marginRight: '10px',
+                    alignSelf: 'flex-start',
+                    marginTop: '2px',
+                    boxShadow: '0 0 12px rgba(0,217,166,0.25)',
+                  }}
                 />
               )}
-
-                {/*<div style={{
-                  width: '28px',
-                  height: '28px',
-                  borderRadius: '8px',
-                  background: 'linear-gradient(135deg, #00D9A6, #0A6E56)',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  flexShrink: 0,
-                  marginRight: '10px',
-                  alignSelf: 'flex-start',
-                  marginTop: '2px',
-                }}>
-                  <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
-                    <path d="M7 3v8M3 7h8" stroke="white" strokeWidth="1.5" strokeLinecap="round"/>
-                  </svg>
-                </div>
-              )*/}
-
-              
 
               <div style={{
                 maxWidth: '80%',
@@ -312,7 +277,7 @@ export default function ChatInterface() {
             </div>
           ))}
 
-          {/* ── Decorative image — visible only on the empty/welcome state ── */}
+          {/* Decorative image — visible only on the empty/welcome state */}
           {messages.length <= 1 && !isTyping && (
             <div style={{
               flex: 1,
@@ -369,6 +334,9 @@ export default function ChatInterface() {
               </div>
             </div>
           )}
+
+          {/* Invisible scroll anchor — sits at the bottom of the chat */}
+          <div ref={bottomRef} />
         </div>
 
         {/* INPUT AREA */}
